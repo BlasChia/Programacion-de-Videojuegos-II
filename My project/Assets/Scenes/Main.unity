@@ -730,6 +730,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 85df2d394a89eae4eb09f29fdc6dbd99, type: 2}
   FoodPrefab: {fileID: 3561570189836943533, guid: fcf6363b634269348abb3d9cdc102497, type: 3}
   WallPrefab: {fileID: 3876854936648321216, guid: 42bbb08f6f7fe264ea1ad906012634d2, type: 3}
+  ExitCellPrefab: {fileID: 2166921628680982785, guid: 1000724c62553be4e9ef8c58c77f5f1f, type: 3}
 --- !u!156049354 &1805879436
 Grid:
   m_ObjectHideFlags: 0
