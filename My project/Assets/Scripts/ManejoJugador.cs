@@ -3,9 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    private BoardManager m_Board;
-    private Vector2Int m_CellPosition;
-    private bool m_IsGameOver;
+    public float MoveSpeed = 5f;
 
     public void Spawn(BoardManager boardManager, Vector2Int cell)
     {
@@ -27,6 +25,51 @@ public class PlayerController : MonoBehaviour
     public void Init()
     {
         m_IsGameOver = false;
+    }
+
+    public void MoveTo(Vector2Int cell, bool immediate)
+    {
+
+        m_CellPosition = cell;
+
+        if(immediate)
+        {
+
+            m_IsMoving = false;
+            transform.position = m_Board.CellToWorld(m_CellPosition);
+
+        }
+        else
+        {
+
+            m_IsMoving = true;
+            m_MoveTarget = m_Board.CellToWorld(m_CellPosition);
+
+        }
+
+        m_Animator.SetBool("Moviendose", m_IsMoving);
+
+    }
+
+    public void Attack()
+    {
+
+        m_Animator.SetTrigger("Ataque");
+
+    }
+    
+    private BoardManager m_Board;
+    private Vector2Int m_CellPosition;
+    private Vector3 m_MoveTarget;
+    private bool m_IsGameOver;
+    public bool m_IsMoving;
+    private Animator m_Animator;
+
+    private void Awake()
+    {
+
+        m_Animator = GetComponent<Animator>();
+
     }
 
     private void Update()
@@ -76,15 +119,45 @@ public class PlayerController : MonoBehaviour
 
                 if (cellData.ContainedObject == null)
                 {
-                    MoveTo(newCellTarget);
+                    MoveTo(newCellTarget, false);
                 }
-                else if (cellData.ContainedObject.PlayerWantsToEnter())
+                else 
                 {
-                    MoveTo(newCellTarget);
-                    //Call PlayerEntered AFTER moving the player! Otherwise not in cell yet
-                    cellData.ContainedObject.PlayerEntered();
+                    if (cellData.ContainedObject.PlayerWantsToEnter())
+                    {
+                       
+                       MoveTo(newCellTarget, false);
+
+                    }
+
+                    else
+                    {
+
+                        m_Animator.SetTrigger("Ataque");
+
+                    }
                 }
             }
+        }
+
+        if (m_IsMoving)
+        {
+
+            transform.position = Vector3.MoveTowards(transform.position, m_MoveTarget, MoveSpeed * Time.deltaTime);
+
+            if (Vector3.Distance(transform.position, m_MoveTarget) < 0.001f)
+            {
+                transform.position = m_MoveTarget; // Aseguramos la posición final exacta
+                m_IsMoving = false;
+                m_Animator.SetBool("Moviendose", false);
+
+                var cellData = m_Board.GetCellData(m_CellPosition);
+                if (cellData.ContainedObject != null)
+                    cellData.ContainedObject.PlayerEntered();
+            }
+
+            return;
+
         }
     }
 
